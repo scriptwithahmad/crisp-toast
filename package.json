@@ -1,0 +1,28 @@
+{
+  "name": "crisp-toast",
+  "version": "1.0.0",
+  "description": "A lightweight, beautiful, and highly customizable vanilla JS toast notification library.",
+  "type": "module",
+  "main": "./dist/crisp-toast.umd.cjs",
+  "module": "./dist/crisp-toast.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/crisp-toast.js",
+      "require": "./dist/crisp-toast.umd.cjs",
+      "types": "./dist/index.d.ts"
+    },
+    "./style.css": "./dist/style.css"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/node": "^25.4.0",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0",
+    "vite-plugin-dts": "^3.7.0"
+  }
+}
