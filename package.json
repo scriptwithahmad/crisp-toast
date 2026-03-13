@@ -39,11 +39,11 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/crisp-toast.git"
+    "url": "https://github.com/scriptwithahmad/crisp-toast.git"
   },
-  "homepage": "https://github.com/your-username/crisp-toast#readme",
+  "homepage": "https://github.com/scriptwithahmad/crisp-toast#readme",
   "bugs": {
-    "url": "https://github.com/your-username/crisp-toast/issues"
+    "url": "https://github.com/scriptwithahmad/crisp-toast/issues"
   },
   "engines": {
     "node": ">=16"
