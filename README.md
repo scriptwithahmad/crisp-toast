@@ -56,6 +56,11 @@ toast('Hello World!');
 toast.success('Settings saved!');
 ```
 
+## Live Demo
+
+Check out the live playground for interactive testing and examples:  
+[https://crisp-toast-playground.vercel.app/](https://crisp-toast-playground.vercel.app/)
+
 ## Usage
 
 ### Toast Types
