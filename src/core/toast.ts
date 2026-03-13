@@ -20,7 +20,8 @@ export class Toast {
       variant: options.variant || 'bordered',
       color: options.color || (type === 'normal' ? 'default' : type === 'loading' ? 'primary' : type as any),
       radius: options.radius || 'md',
-      progressBar: options.progressBar !== false // default to true if they want it
+      progressBar: options.progressBar ?? false,
+      darkMode: options.darkMode ?? true
     };
     if (typeof document !== 'undefined') {
       this.render();
@@ -200,7 +201,8 @@ export class Toast {
   }
 
   private buildClasses() {
-    const classes = ['ct-toast', `ct-${this.state.variant}`, `ct-color-${this.state.color}`, `ct-radius-${this.state.radius}`];
+    const themeClass = this.state.darkMode ? 'ct-theme-dark' : 'ct-theme-light';
+    const classes = ['ct-toast', themeClass, `ct-${this.state.variant}`, `ct-color-${this.state.color}`, `ct-radius-${this.state.radius}`];
     return classes.join(' ');
   }
 

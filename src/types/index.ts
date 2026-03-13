@@ -16,6 +16,7 @@ export interface ToastOptions {
   icon?: string | HTMLElement | boolean; // false to hide
   endContent?: string | HTMLElement | ((container: HTMLElement) => void) | any;
   id?: string;
+  darkMode?: boolean;
   customStyle?: Partial<CSSStyleDeclaration>;
   action?: {
     label: string;

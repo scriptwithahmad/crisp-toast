@@ -6,6 +6,7 @@
   "main": "./dist/crisp-toast.umd.cjs",
   "module": "./dist/crisp-toast.js",
   "types": "./dist/index.d.ts",
+
   "exports": {
     ".": {
       "import": "./dist/crisp-toast.js",
@@ -14,15 +15,56 @@
     },
     "./style.css": "./dist/style.css"
   },
+
+  "files": [
+    "dist"
+  ],
+
+  "sideEffects": [
+    "*.css"
+  ],
+
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview"
   },
+
+  "keywords": [
+    "toast",
+    "toast-notification",
+    "notification",
+    "javascript-toast",
+    "vanilla-js",
+    "alert",
+    "toast-library",
+    "ui-library",
+    "frontend",
+    "crisp-toast"
+  ],
+
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/crisp-toast.git"
+  },
+
+  "homepage": "https://github.com/your-username/crisp-toast#readme",
+
+  "bugs": {
+    "url": "https://github.com/your-username/crisp-toast/issues"
+  },
+
+  "engines": {
+    "node": ">=16"
+  },
+
+  "author": "Ahmad",
+  "license": "MIT",
+
   "devDependencies": {
     "@types/node": "^25.4.0",
     "typescript": "^5.2.2",
     "vite": "^5.0.0",
     "vite-plugin-dts": "^3.7.0"
   }
-}
+} 
