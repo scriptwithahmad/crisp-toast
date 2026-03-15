@@ -180,8 +180,9 @@
 .ct-toast {
   pointer-events: auto;
   display: flex;
-  align-items: flex-start;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: stretch;
   padding: 1rem 1.25rem;
   min-width: 340px;
   max-width: 440px;
@@ -258,7 +259,18 @@
   z-index: 0;
 }
 
-.ct-toast.ct-flat.ct-color-default { background: var(--ct-bg-default); }
+.ct-toast.ct-flat.ct-color-default { 
+  background: var(--ct-bg-default); 
+}
+
+/* Add subtle border for default flat toast in light mode for better separation */
+.ct-theme-light .ct-toast.ct-flat.ct-color-default {
+  border-color: var(--ct-border-default);
+}
+
+.ct-theme-dark .ct-toast.ct-flat.ct-color-default .ct-title {
+  color: var(--ct-title-default);
+}
 .ct-toast.ct-flat.ct-color-primary { background: var(--ct-bg-primary); color: var(--ct-title-primary); }
 .ct-toast.ct-flat.ct-color-secondary { background: var(--ct-bg-secondary); color: var(--ct-title-secondary); }
 .ct-toast.ct-flat.ct-color-success { background: var(--ct-bg-success); color: var(--ct-title-success); }
@@ -304,6 +316,16 @@
 .ct-color-warning .ct-icon { background: var(--ct-icon-warning); }
 .ct-color-danger .ct-icon { background: var(--ct-icon-danger); }
 
+/* Body Row Wrapper */
+.ct-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
 /* Content Wrapper */
 .ct-content {
   flex-grow: 1;
@@ -318,9 +340,7 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin-left: auto;
-  padding-left: 0.5rem;
+  width: 100%;
   position: relative;
   z-index: 1;
 }

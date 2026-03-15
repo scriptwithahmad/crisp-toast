@@ -1,6 +1,7 @@
 import './styles/toast.css';
 import { ToastOptions, ToastState } from './types/index';
 import { Toast } from './core/toast';
+export { Toast };
 
 export * from './types/index';
 

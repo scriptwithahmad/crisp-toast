@@ -8,6 +8,22 @@ export class Toast {
   private state: ToastState;
   private element: HTMLElement | null = null;
   private timer: number | null = null;
+  private startTime: number = 0;
+  private remainingTime: number = 0;
+  private isPaused: boolean = false;
+  
+  public static renderer: (node: any, container: HTMLElement) => void = (node, container) => {
+    if (node instanceof HTMLElement) {
+      container.appendChild(node);
+    } else if (typeof node === 'string') {
+      container.innerHTML = node;
+    } else if (node && typeof node === 'object') {
+      // Fallback for React/JSX if no custom renderer is provided
+      // If we are in a React environment, this should be handled by a custom renderer
+      // set via Toast.renderer = ...
+      console.warn('Crisp Toast: Received an object but no custom renderer is set. Use Toast.renderer = (node, container) => ... to support JSX.');
+    }
+  };
 
   constructor(options: ToastOptions, type: ToastState['type'] = 'normal') {
     this.state = {
@@ -21,8 +37,10 @@ export class Toast {
       color: options.color || (type === 'normal' ? 'default' : type === 'loading' ? 'primary' : type as any),
       radius: options.radius || 'md',
       progressBar: options.progressBar ?? false,
-      darkMode: options.darkMode ?? true
+      darkMode: options.darkMode ?? true,
+      pauseOnHover: options.pauseOnHover ?? false
     };
+    this.remainingTime = this.state.duration!;
     if (typeof document !== 'undefined') {
       this.render();
     }
@@ -37,9 +55,17 @@ export class Toast {
       Object.assign(this.element.style, this.state.customStyle);
     }
 
-    const iconWrapper = document.createElement('div');
-    iconWrapper.className = 'ct-icon';
+    if (this.state.pauseOnHover) {
+      this.element.onmouseenter = () => this.pause();
+      this.element.onmouseleave = () => this.resume();
+    }
+
+    const bodyWrapper = document.createElement('div');
+    bodyWrapper.className = 'ct-body';
+
     if (this.state.icon !== false) {
+      const iconWrapper = document.createElement('div');
+      iconWrapper.className = 'ct-icon';
       if (this.state.icon instanceof HTMLElement) {
         iconWrapper.appendChild(this.state.icon);
       } else if (typeof this.state.icon === 'string') {
@@ -48,10 +74,12 @@ export class Toast {
         iconWrapper.innerHTML = this.state.type === 'loading' 
           ? icons.loading 
           : (icons[this.state.color as keyof typeof icons] || icons.default);
+      } else if (this.state.icon && typeof this.state.icon === 'object') {
+        Toast.renderer(this.state.icon, iconWrapper);
       } else {
         iconWrapper.innerHTML = icons.default;
       }
-      this.element.appendChild(iconWrapper);
+      bodyWrapper.appendChild(iconWrapper);
     }
 
     const contentWrapper = document.createElement('div');
@@ -60,47 +88,31 @@ export class Toast {
     if (this.state.title) {
       const titleEl = document.createElement('div');
       titleEl.className = 'ct-title';
-      titleEl.textContent = this.state.title;
+      this.renderContent(this.state.title, titleEl);
       contentWrapper.appendChild(titleEl);
     }
 
     if (this.state.description) {
       const descEl = document.createElement('div');
       descEl.className = 'ct-description';
-      descEl.textContent = this.state.description;
+      this.renderContent(this.state.description, descEl);
       contentWrapper.appendChild(descEl);
     }
     
     if (this.state.title || this.state.description) {
-      this.element.appendChild(contentWrapper);
-    }
-
-    if (this.state.endContent) {
-      const endContentWrapper = document.createElement('div');
-      endContentWrapper.className = 'ct-end-content';
-      
-      if (typeof this.state.endContent === 'function') {
-        this.state.endContent(endContentWrapper);
-      } else if (this.state.endContent instanceof HTMLElement) {
-        endContentWrapper.appendChild(this.state.endContent);
-      } else if (typeof this.state.endContent === 'string') {
-        endContentWrapper.innerHTML = this.state.endContent;
-      } else if (this.state.endContent) {
-        // For mystery objects (like JSX elements), we check if a global renderer exists
-        // or just let the caller handle it via the function type above.
-        // If it's a React element and the user hasn't rendered it, we'll just show nothing
-        // or a placeholder if we wanted to be helpful.
-      }
-      this.element.appendChild(endContentWrapper);
+      bodyWrapper.appendChild(contentWrapper);
     }
 
     const actionsWrapper = document.createElement('div');
     actionsWrapper.className = 'ct-actions';
 
     if (this.state.action) {
-      const actionBtn = document.createElement('button');
-      actionBtn.className = 'ct-action-btn';
-      actionBtn.textContent = this.state.action.label;
+      const actionBtn = document.createElement('div'); 
+      actionBtn.className = 'ct-action-wrapper';
+      actionBtn.style.cursor = 'pointer';
+      
+      this.renderContent(this.state.action.label, actionBtn);
+      
       actionBtn.onclick = () => {
         this.state.action?.onClick();
         this.dismiss();
@@ -114,7 +126,15 @@ export class Toast {
     closeBtn.onclick = () => this.dismiss();
     actionsWrapper.appendChild(closeBtn);
 
-    this.element.appendChild(actionsWrapper);
+    bodyWrapper.appendChild(actionsWrapper);
+    this.element.appendChild(bodyWrapper);
+
+    if (this.state.endContent) {
+      const endContentWrapper = document.createElement('div');
+      endContentWrapper.className = 'ct-end-content';
+      this.renderContent(this.state.endContent, endContentWrapper);
+      this.element.appendChild(endContentWrapper);
+    }
 
     // Progress bar
     if (this.state.progressBar && this.state.duration! > 0 && this.state.duration !== Infinity) {
@@ -126,6 +146,7 @@ export class Toast {
 
     ToastManager.addToast(this.state.placement!, this.element);
 
+    this.startTime = Date.now();
     if (this.state.duration! > 0 && this.state.duration !== Infinity) {
       this.timer = window.setTimeout(() => this.dismiss(), this.state.duration);
     }
@@ -135,19 +156,57 @@ export class Toast {
     }
   }
 
+  private renderContent(content: any, container: HTMLElement) {
+    if (typeof content === 'function') {
+      content(container);
+    } else if (content instanceof HTMLElement) {
+      container.appendChild(content);
+    } else if (typeof content === 'string') {
+      container.textContent = content; // Safely use textContent for strings
+    } else if (content && typeof content === 'object') {
+      Toast.renderer(content, container);
+    }
+  }
+
+  private pause() {
+    if (this.isPaused || !this.timer) return;
+    this.isPaused = true;
+    this.remainingTime -= (Date.now() - this.startTime);
+    clearTimeout(this.timer);
+    if (this.element) {
+      const progress = this.element.querySelector('.ct-progress-bar') as HTMLElement;
+      if (progress) progress.style.animationPlayState = 'paused';
+    }
+  }
+
+  private resume() {
+    if (!this.isPaused) return;
+    this.isPaused = false;
+    this.startTime = Date.now();
+    if (this.remainingTime > 0) {
+      this.timer = window.setTimeout(() => this.dismiss(), this.remainingTime);
+      if (this.element) {
+        const progress = this.element.querySelector('.ct-progress-bar') as HTMLElement;
+        if (progress) {
+          progress.style.animationPlayState = 'running';
+        }
+      }
+    }
+  }
+
   private handlePromise(promise: Promise<any>) {
     promise
       .then((data) => {
         const successTitle = this.state.promiseMessages?.success 
           ? (typeof this.state.promiseMessages.success === 'function' ? this.state.promiseMessages.success(data) : this.state.promiseMessages.success)
           : 'Success';
-        this.update({ type: 'success', title: successTitle as string, color: 'success', duration: 3000 });
+        this.update({ type: 'success', title: successTitle as any, color: 'success', duration: 3000 });
       })
       .catch((err) => {
         const errorTitle = this.state.promiseMessages?.error
           ? (typeof this.state.promiseMessages.error === 'function' ? this.state.promiseMessages.error(err) : this.state.promiseMessages.error)
           : 'Error';
-        this.update({ type: 'error', title: errorTitle as string, color: 'danger', duration: 3000 });
+        this.update({ type: 'error', title: errorTitle as any, color: 'danger', duration: 3000 });
       });
   }
 
@@ -157,14 +216,16 @@ export class Toast {
     this.state = { ...this.state, ...options };
     this.element.className = this.buildClasses();
     
-    const iconWrapper = this.element.querySelector('.ct-icon');
+    const iconWrapper = this.element.querySelector('.ct-icon') as HTMLElement;
     if (iconWrapper) {
       if (this.state.icon !== false) {
+        iconWrapper.innerHTML = '';
         if (this.state.icon instanceof HTMLElement) {
-          iconWrapper.innerHTML = '';
           iconWrapper.appendChild(this.state.icon);
         } else if (typeof this.state.icon === 'string') {
           iconWrapper.innerHTML = this.state.icon;
+        } else if (this.state.icon && typeof this.state.icon === 'object') {
+          Toast.renderer(this.state.icon, iconWrapper);
         } else {
           iconWrapper.innerHTML = this.state.type === 'loading' 
             ? icons.loading 
@@ -175,19 +236,19 @@ export class Toast {
       }
     }
 
-    const contentWrapper = this.element.querySelector('.ct-content');
+    const contentWrapper = this.element.querySelector('.ct-content') as HTMLElement;
     if (contentWrapper) {
       contentWrapper.innerHTML = '';
       if (this.state.title) {
         const titleEl = document.createElement('div');
         titleEl.className = 'ct-title';
-        titleEl.textContent = typeof this.state.title === 'string' ? this.state.title : '';
+        this.renderContent(this.state.title, titleEl);
         contentWrapper.appendChild(titleEl);
       }
       if (this.state.description) {
         const descEl = document.createElement('div');
         descEl.className = 'ct-description';
-        descEl.textContent = this.state.description;
+        this.renderContent(this.state.description, descEl);
         contentWrapper.appendChild(descEl);
       }
     }
@@ -195,6 +256,8 @@ export class Toast {
     if (this.timer) {
       clearTimeout(this.timer);
     }
+    this.remainingTime = this.state.duration!;
+    this.startTime = Date.now();
     if (this.state.duration! > 0 && this.state.duration !== Infinity) {
       this.timer = window.setTimeout(() => this.dismiss(), this.state.duration);
     }
@@ -221,6 +284,7 @@ export class Toast {
       if (this.state.onClose) {
         this.state.onClose();
       }
+      this.element = null;
     };
 
     this.element.addEventListener('animationend', onAnimationEnd, { once: true });

@@ -64,3 +64,35 @@ createSection('Features', [
       toast.promise(wait, { loading: 'Saving...', success: 'Saved successfully!', error: 'Could not save' });
   }},
 ]);
+
+createSection('Advanced Layouts', [
+  { 
+    label: 'End Content (Stacked)', 
+    onClick: () => toast({ 
+      title: 'Storage Full', 
+      description: 'You have reached 90% of your limit.',
+      endContent: '<button style="width:100%; padding:8px; background:#2563eb; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:bold; margin-top:4px;">Upgrade Storage</button>'
+    }) 
+  },
+  { 
+    label: 'Pause on Hover (Enabled)', 
+    onClick: () => toast({ 
+      title: 'Hover Me!', 
+      description: 'The progress bar will stop while your cursor is here.',
+      pauseOnHover: true,
+      duration: 10000,
+      progressBar: true
+    }) 
+  },
+  { 
+    label: 'Pause on Hover (Disabled)', 
+    onClick: () => toast({ 
+      title: 'Default Behavior', 
+      description: 'This will keep counting down even while hovering.',
+      pauseOnHover: false,
+      duration: 10000,
+      progressBar: true
+    }) 
+  },
+]);
+
