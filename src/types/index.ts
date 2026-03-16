@@ -32,7 +32,7 @@ export interface ToastOptions {
   };
 }
 
-export type ToastType = 'normal' | 'loading' | 'success' | 'error' | 'warning' | 'info';
+export type ToastType = 'normal' | 'loading';
 
 export interface ToastState extends ToastOptions {
   type: ToastType;

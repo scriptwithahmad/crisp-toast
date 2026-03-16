@@ -164,17 +164,22 @@
 .ct-container {
   position: fixed;
   z-index: 9999;
-  display: grid;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
   pointer-events: none;
+  padding: 1rem;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Placements */
-.ct-top-left { top: 1.5rem; left: 1.5rem; justify-items: start; }
-.ct-top-center { top: 1.5rem; left: 50%; transform: translateX(-50%); justify-items: center; }
-.ct-top-right { top: 1.5rem; right: 1.5rem; justify-items: end; }
-.ct-bottom-left { bottom: 1.5rem; left: 1.5rem; justify-items: start; align-items: end; }
-.ct-bottom-center { bottom: 1.5rem; left: 50%; transform: translateX(-50%); justify-items: center; align-items: end; }
-.ct-bottom-right { bottom: 1.5rem; right: 1.5rem; justify-items: end; align-items: end; }
+.ct-top-left { top: 0; left: 0; align-items: flex-start; }
+.ct-top-center { top: 0; left: 50%; transform: translateX(-50%); align-items: center; }
+.ct-top-right { top: 0; right: 0; align-items: flex-end; }
+.ct-bottom-left { bottom: 0; left: 0; align-items: flex-start; flex-direction: column-reverse; }
+.ct-bottom-center { bottom: 0; left: 50%; transform: translateX(-50%); align-items: center; flex-direction: column-reverse; }
+.ct-bottom-right { bottom: 0; right: 0; align-items: flex-end; flex-direction: column-reverse; }
 
 /* Toast Block */
 .ct-toast {
@@ -184,20 +189,40 @@
   gap: 0.75rem;
   align-items: stretch;
   padding: 1rem 1.25rem;
-  min-width: 340px;
+  width: 100%;
+  min-width: 280px;
   max-width: 440px;
   box-shadow: var(--ct-shadow);
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 0.875rem;
   line-height: 1.25rem;
-  grid-area: 1 / 1;
   will-change: transform, opacity;
   animation: ct-enter var(--ct-duration) var(--ct-easing) forwards;
   transition: all var(--ct-duration) var(--ct-easing);
   border: 1px solid transparent;
   position: relative;
   overflow: hidden;
-  transform: translateY(var(--ct-y, 0)) scale(var(--ct-scale, 1));
+}
+
+@media (max-width: 640px) {
+  .ct-container {
+    padding: 0.75rem;
+    left: 0 !important;
+    right: 0 !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    align-items: center !important;
+  }
+  
+  .ct-toast {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  /* Force top/bottom center behavior on mobile */
+  .ct-top-left, .ct-top-right { top: 0; }
+  .ct-bottom-left, .ct-bottom-right { bottom: 0; }
 }
 
 .ct-toast.ct-leave {
@@ -265,6 +290,10 @@
 
 /* Add subtle border for default flat toast in light mode for better separation */
 .ct-theme-light .ct-toast.ct-flat.ct-color-default {
+  border-color: var(--ct-border-default);
+}
+
+.ct-theme-dark .ct-toast.ct-flat.ct-color-default {
   border-color: var(--ct-border-default);
 }
 

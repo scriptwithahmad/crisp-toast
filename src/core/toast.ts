@@ -33,8 +33,8 @@ export class Toast {
       createdAt: Date.now(),
       placement: options.placement || 'bottom-right',
       duration: options.duration ?? (type === 'loading' ? Infinity : 3000),
-      variant: options.variant || 'bordered',
-      color: options.color || (type === 'normal' ? 'default' : type === 'loading' ? 'primary' : type as any),
+      variant: options.variant || 'flat',
+      color: options.color || (type === 'loading' ? 'primary' : 'default'),
       radius: options.radius || 'md',
       progressBar: options.progressBar ?? false,
       darkMode: options.darkMode ?? true,
@@ -70,14 +70,12 @@ export class Toast {
         iconWrapper.appendChild(this.state.icon);
       } else if (typeof this.state.icon === 'string') {
         iconWrapper.innerHTML = this.state.icon;
-      } else if (icons[this.state.type as keyof typeof icons] || icons[this.state.color as keyof typeof icons]) {
-        iconWrapper.innerHTML = this.state.type === 'loading' 
-          ? icons.loading 
-          : (icons[this.state.color as keyof typeof icons] || icons.default);
       } else if (this.state.icon && typeof this.state.icon === 'object') {
         Toast.renderer(this.state.icon, iconWrapper);
+      } else if (this.state.type === 'loading') {
+        iconWrapper.innerHTML = icons.loading;
       } else {
-        iconWrapper.innerHTML = icons.default;
+        iconWrapper.innerHTML = icons[this.state.color as keyof typeof icons] || icons.default;
       }
       bodyWrapper.appendChild(iconWrapper);
     }
@@ -200,13 +198,13 @@ export class Toast {
         const successTitle = this.state.promiseMessages?.success 
           ? (typeof this.state.promiseMessages.success === 'function' ? this.state.promiseMessages.success(data) : this.state.promiseMessages.success)
           : 'Success';
-        this.update({ type: 'success', title: successTitle as any, color: 'success', duration: 3000 });
+        this.update({ type: 'normal', title: successTitle as any, color: 'success', duration: 3000 });
       })
       .catch((err) => {
         const errorTitle = this.state.promiseMessages?.error
           ? (typeof this.state.promiseMessages.error === 'function' ? this.state.promiseMessages.error(err) : this.state.promiseMessages.error)
           : 'Error';
-        this.update({ type: 'error', title: errorTitle as any, color: 'danger', duration: 3000 });
+        this.update({ type: 'normal', title: errorTitle as any, color: 'danger', duration: 3000 });
       });
   }
 

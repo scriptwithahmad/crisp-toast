@@ -9,6 +9,7 @@ A lightweight, beautiful, and highly customizable vanilla JavaScript toast notif
 - [Features](#features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Next.js Usage](#nextjs-usage)
 - [Usage](#usage)
   - [Toast Types](#toast-types)
   - [Variants](#variants)
@@ -53,7 +54,19 @@ import 'crisp-toast/style.css';
 toast('Hello World!');
 
 // Success toast
-toast.success('Settings saved!');
+toast({ title: 'Settings saved!', color: 'success' });
+```
+
+### Next.js Usage
+
+Crisp Toast works exactly the same in Next.js as in standard React apps. However, because it interacts with the browser's DOM, you **must** use the `"use client"` directive at the top of any file where you are using `crisp-toast` in the Next.js App Router.
+
+```javascript
+"use client";
+
+import { toast } from 'crisp-toast';
+
+// ... your component logic
 ```
 
 ## Live Demo
@@ -63,16 +76,16 @@ Check out the live playground for interactive testing and examples:
 
 ## Usage
 
-### Toast Types
+### Toast Colors
 
-Crisp Toast provides specialized methods for common states:
+Crisp Toast uses the `color` prop to set the theme of the toast. The icon is automatically selected based on the color:
 
 ```javascript
-toast('Normal toast');
-toast.success('Task completed!');
-toast.error('Something went wrong.');
-toast.warning('Check your input.');
-toast.info('New update available.');
+toast({ title: 'Success!', color: 'success' });
+toast({ title: 'Error occurred', color: 'danger' });
+toast({ title: 'Warning', color: 'warning' });
+toast({ title: 'Information', color: 'primary' });
+toast({ title: 'Default toast', color: 'default' });
 toast.loading('Processing...');
 ```
 
@@ -81,8 +94,9 @@ toast.loading('Processing...');
 Choose between three premium variants:
 
 ```javascript
-toast.success({
+toast({
   title: 'Success!',
+  color: 'success',
   variant: 'bordered' // 'solid' | 'bordered' | 'flat' (default: 'bordered')
 });
 ```
@@ -177,6 +191,7 @@ The main function. You can pass a string for a simple message or an options obje
 | `action` | `{ label: string, onClick: function }`| `undefined` | Add a call-to-action button. |
 | `onClose` | `function` | `undefined` | Callback when toast is dismissed. |
 | `customStyle`| `CSSStyleDeclaration` | `{}` | Custom CSS overrides. |
+| `pauseOnHover`| `boolean` | `false` | Pause the timer when cursor enters toast. |
 
 ## License
 
