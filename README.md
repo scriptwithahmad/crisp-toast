@@ -28,6 +28,7 @@ A lightweight, beautiful, and highly customizable vanilla JavaScript toast notif
 - 🧭 **Precise Placement**: 6 different anchor positions.
 - ⏳ **Progress Bar**: Visual countdown for auto-dismissal (optional).
 - 📦 **Promise Support**: Easy handling of loading states.
+- 📚 **Stacked Toasts**: Elegant stacking of multiple notifications. Hover to expand.
 - 🛠️ **Fully Customizable**: Override styles, icons, and behavior.
 
 ## Installation
