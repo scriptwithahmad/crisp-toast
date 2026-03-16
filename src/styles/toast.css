@@ -273,7 +273,7 @@
 .ct-toast.ct-flat { 
   box-shadow: none; 
   border-color: transparent;
-  background-image: none !important; /* Remove any previously set gradients */
+  background-image: none; /* Remove any previously set gradients */
 }
 
 /* Subtle decorative glow at the top-left only */
