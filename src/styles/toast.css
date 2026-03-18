@@ -50,9 +50,11 @@
 
 .ct-theme-dark,
 [data-theme='dark'] .ct-toast,
-.ct-toast.ct-theme-dark {
+.ct-toast.ct-theme-dark,
+.dark .ct-toast,
+.ct-toast.dark {
   --ct-bg-default: #171717;
-  --ct-title-default: #f9fafb;
+  --ct-title-default: #ffffff;
   --ct-border-default: #262626;
   --ct-icon-default: #737373;
 
@@ -88,7 +90,9 @@
 
 .ct-theme-light,
 [data-theme='light'] .ct-toast,
-.ct-toast.ct-theme-light {
+.ct-toast.ct-theme-light,
+.light .ct-toast,
+.ct-toast.light {
   --ct-bg-default: #ffffff;
   --ct-title-default: #111827;
   --ct-border-default: #e5e7eb;
@@ -166,7 +170,7 @@
   z-index: 9999;
   display: grid;
   grid-template-columns: 1fr;
-  grid-template-rows: 1fr;
+  grid-template-rows: auto;
   pointer-events: none;
   padding: 1.5rem;
   width: 100%;
@@ -176,12 +180,12 @@
 }
 
 /* Placements */
-.ct-top-left { top: 0; left: 0; justify-items: start; }
-.ct-top-center { top: 0; left: 50%; transform: translateX(-50%); justify-items: center; }
-.ct-top-right { top: 0; right: 0; justify-items: end; }
-.ct-bottom-left { bottom: 0; left: 0; justify-items: start; }
-.ct-bottom-center { bottom: 0; left: 50%; transform: translateX(-50%); justify-items: center; }
-.ct-bottom-right { bottom: 0; right: 0; justify-items: end; }
+.ct-top-left { top: 0; left: 0; justify-items: start; align-items: start; }
+.ct-top-center { top: 0; left: 50%; transform: translateX(-50%); justify-items: center; align-items: start; }
+.ct-top-right { top: 0; right: 0; justify-items: end; align-items: start; }
+.ct-bottom-left { bottom: 0; left: 0; justify-items: start; align-items: end; }
+.ct-bottom-center { bottom: 0; left: 50%; transform: translateX(-50%); justify-items: center; align-items: end; }
+.ct-bottom-right { bottom: 0; right: 0; justify-items: end; align-items: end; }
 
 /* Toast Block */
 .ct-toast {
@@ -194,6 +198,8 @@
   align-items: stretch;
   padding: 1rem 1.25rem;
   width: 100%;
+  height: fit-content;
+
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: 0.875rem;
@@ -257,6 +263,12 @@
 .ct-toast.ct-solid.ct-color-warning { background: var(--ct-icon-warning); }
 .ct-toast.ct-solid.ct-color-danger { background: var(--ct-icon-danger); }
 
+/* Progress bar for Solid variant */
+.ct-toast.ct-solid .ct-progress-bar {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+
 /* Bordered Variant (soft background + strong solid border) */
 .ct-toast.ct-bordered { border-width: 2px; }
 .ct-toast.ct-bordered.ct-color-default { background: var(--ct-bg-default); border-color: var(--ct-border-default); }
@@ -269,11 +281,17 @@
 .ct-toast.ct-bordered .ct-title { color: inherit; }
 .ct-toast.ct-bordered .ct-description { color: var(--ct-text-desc); }
 
-/* Flat Variant (solid background + subtle glow + no border) */
+/* Flat Variant (solid background + subtle glow + soft matching border) */
 .ct-toast.ct-flat { 
   box-shadow: none; 
-  border-color: transparent;
-  background-image: none; /* Remove any previously set gradients */
+  background-image: none;
+  border: 1px solid rgba(0, 0, 0, 0.05); /* Default very subtle border */
+}
+
+.dark .ct-toast.ct-flat,
+.ct-toast.ct-flat.dark,
+.ct-theme-dark .ct-toast.ct-flat {
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 /* Subtle decorative glow at the top-left only */
@@ -307,14 +325,31 @@
 .ct-theme-dark .ct-toast.ct-flat.ct-color-default .ct-title {
   color: var(--ct-title-default);
 }
-.ct-toast.ct-flat.ct-color-primary { background: var(--ct-bg-primary); color: var(--ct-title-primary); }
-.ct-toast.ct-flat.ct-color-secondary { background: var(--ct-bg-secondary); color: var(--ct-title-secondary); }
-.ct-toast.ct-flat.ct-color-success { background: var(--ct-bg-success); color: var(--ct-title-success); }
-.ct-toast.ct-flat.ct-color-warning { background: var(--ct-bg-warning); color: var(--ct-title-warning); }
-.ct-toast.ct-flat.ct-color-danger { background: var(--ct-bg-danger); color: var(--ct-title-danger); }
+.ct-toast.ct-flat.ct-color-primary { background: var(--ct-bg-primary); color: var(--ct-title-primary); border-color: rgba(59, 130, 246, 0.15); }
+.ct-toast.ct-flat.ct-color-secondary { background: var(--ct-bg-secondary); color: var(--ct-title-secondary); border-color: rgba(139, 92, 246, 0.15); }
+.ct-toast.ct-flat.ct-color-success { background: var(--ct-bg-success); color: var(--ct-title-success); border-color: rgba(34, 197, 94, 0.15); }
+.ct-toast.ct-flat.ct-color-warning { background: var(--ct-bg-warning); color: var(--ct-title-warning); border-color: rgba(245, 158, 11, 0.15); }
+.ct-toast.ct-flat.ct-color-danger { background: var(--ct-bg-danger); color: var(--ct-title-danger); border-color: rgba(239, 68, 68, 0.15); }
 
 .ct-toast.ct-flat .ct-title { color: inherit; }
 .ct-toast.ct-flat .ct-description { color: var(--ct-text-desc); }
+
+/* Ensure white titles in dark mode for bordered and flat variants, and default color toasts */
+.ct-theme-dark .ct-bordered .ct-title,
+.ct-theme-dark .ct-flat .ct-title,
+.dark .ct-bordered .ct-title,
+.dark .ct-flat .ct-title,
+.ct-toast.ct-theme-dark.ct-bordered .ct-title,
+.ct-toast.ct-theme-dark.ct-flat .ct-title,
+.ct-toast.dark.ct-bordered .ct-title,
+.ct-toast.dark.ct-flat .ct-title,
+.ct-theme-dark .ct-color-default .ct-title,
+.dark .ct-color-default .ct-title,
+.ct-toast.ct-theme-dark.ct-color-default .ct-title,
+.ct-toast.dark.ct-color-default .ct-title {
+  color: #ffffff !important;
+}
+
 
 /* Glow colors for Flat variant */
 .ct-toast.ct-flat.ct-color-primary::before { background: var(--ct-icon-primary); }

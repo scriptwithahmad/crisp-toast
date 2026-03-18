@@ -1,6 +1,6 @@
 # Crisp Toast 🍞
 
-A lightweight, beautiful, and highly customizable vanilla JavaScript toast notification library. Designed for modern web applications with premium aesthetics.
+A lightweight, beautiful, and highly customizable toast notification library specifically designed for React and Next.js applications, offering premium aesthetics.
 
 ![NPM Version](https://img.shields.io/npm/v/crisp-toast)
 ![License](https://img.shields.io/npm/l/crisp-toast)
@@ -21,7 +21,7 @@ A lightweight, beautiful, and highly customizable vanilla JavaScript toast notif
 
 ## Features
 
-- 🚀 **Vanilla JS**: No dependencies, works anywhere.
+- 🚀 **React & Next.js Ready**: Seamlessly integrates with modern React applications and the Next.js App Router.
 - 🎨 **Beautiful Designs**: Support for Solid, Bordered, and Flat variants.
 - 🌈 **Modern Colors**: Built-in palettes (Primary, Success, Danger, etc.).
 - 🌗 **Theme Support**: Independent light/dark mode support for each toast.
@@ -45,29 +45,43 @@ yarn add crisp-toast
 
 ## Quick Start
 
-Import the library and its styles:
+Import the library and its styles into your React component:
 
-```javascript
+```tsx
 import { toast } from 'crisp-toast';
 import 'crisp-toast/style.css';
 
-// Simple toast
-toast('Hello World!');
+export default function App() {
+  const showToast = () => {
+    toast({ title: 'Settings saved!', color: 'success' });
+  };
 
-// Success toast
-toast({ title: 'Settings saved!', color: 'success' });
+  return (
+    <button onClick={showToast}>
+      Show Toast
+    </button>
+  );
+}
 ```
 
 ### Next.js Usage
 
-Crisp Toast works exactly the same in Next.js as in standard React apps. However, because it interacts with the browser's DOM, you **must** use the `"use client"` directive at the top of any file where you are using `crisp-toast` in the Next.js App Router.
+Crisp Toast works perfectly in Next.js. Because it interacts with the browser's DOM, you **must** use the `'use client'` directive at the top of any file where you trigger toasts in the Next.js App Router.
 
-```javascript
-"use client";
+```tsx
+'use client';
 
 import { toast } from 'crisp-toast';
+// Ensure styles are imported either here or within your global layout
+import 'crisp-toast/style.css';
 
-// ... your component logic
+export default function ClientComponent() {
+  return (
+    <button onClick={() => toast('Hello from Next.js!')}>
+      Trigger Toast
+    </button>
+  );
+}
 ```
 
 ## Live Demo

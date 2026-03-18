@@ -13,6 +13,22 @@ const createToast = (options: ToastOptions | string, type: ToastState['type'] = 
 export const toast = Object.assign(
   (options: ToastOptions | string) => createToast(options),
   {
+    success: (options: ToastOptions | string) => {
+      const opts = typeof options === 'string' ? { title: options } : options;
+      return createToast({ ...opts, color: 'success' }, 'normal');
+    },
+    error: (options: ToastOptions | string) => {
+      const opts = typeof options === 'string' ? { title: options } : options;
+      return createToast({ ...opts, color: 'danger' }, 'normal');
+    },
+    warning: (options: ToastOptions | string) => {
+      const opts = typeof options === 'string' ? { title: options } : options;
+      return createToast({ ...opts, color: 'warning' }, 'normal');
+    },
+    info: (options: ToastOptions | string) => {
+      const opts = typeof options === 'string' ? { title: options } : options;
+      return createToast({ ...opts, color: 'primary' }, 'normal');
+    },
     loading: (options: ToastOptions | string) => createToast(options, 'loading'),
     promise: <T>(
       promise: Promise<T>,

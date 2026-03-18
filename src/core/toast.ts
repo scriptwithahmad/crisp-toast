@@ -12,18 +12,11 @@ export class Toast {
   private remainingTime: number = 0;
   private isPaused: boolean = false;
   
-  public static renderer: (node: any, container: HTMLElement) => void = (node, container) => {
-    if (node instanceof HTMLElement) {
-      container.appendChild(node);
-    } else if (typeof node === 'string') {
-      container.innerHTML = node;
-    } else if (node && typeof node === 'object') {
-      // Fallback for React/JSX if no custom renderer is provided
-      // If we are in a React environment, this should be handled by a custom renderer
-      // set via Toast.renderer = ...
-      console.warn('Crisp Toast: Received an object but no custom renderer is set. Use Toast.renderer = (node, container) => ... to support JSX.');
-    }
-  };
+  /**
+   * Optional global renderer for custom nodes (e.g. JSX)
+   * If not set, Crisp Toast will attempt to render common objects (Virtual DOM) automatically.
+   */
+  public static renderer: ((node: any, container: HTMLElement) => void) | null = null;
 
   constructor(options: ToastOptions, type: ToastState['type'] = 'normal') {
     this.state = {
@@ -71,7 +64,7 @@ export class Toast {
       } else if (typeof this.state.icon === 'string') {
         iconWrapper.innerHTML = this.state.icon;
       } else if (this.state.icon && typeof this.state.icon === 'object') {
-        Toast.renderer(this.state.icon, iconWrapper);
+        this.renderContent(this.state.icon, iconWrapper);
       } else if (this.state.type === 'loading') {
         iconWrapper.innerHTML = icons.loading;
       } else {
@@ -155,13 +148,69 @@ export class Toast {
   }
 
   private renderContent(content: any, container: HTMLElement) {
+    if (!content) return;
+
     if (typeof content === 'function') {
       content(container);
-    } else if (content instanceof HTMLElement) {
+      return;
+    }
+
+    if (content instanceof HTMLElement) {
       container.appendChild(content);
-    } else if (typeof content === 'string') {
-      container.textContent = content; // Safely use textContent for strings
-    } else if (content && typeof content === 'object') {
+      return;
+    }
+
+    if (typeof content === 'string' || typeof content === 'number') {
+      const str = String(content);
+      if (str.trim().startsWith('<') && str.trim().endsWith('>')) {
+        container.innerHTML = str;
+      } else {
+        container.appendChild(document.createTextNode(str));
+      }
+      return;
+    }
+
+    if (Array.isArray(content)) {
+      content.forEach(item => this.renderContent(item, container));
+      return;
+    }
+
+    // Handle Virtual DOM / React Elements (JSX)
+    if (content.type) {
+      if (typeof content.type === 'string') {
+        const el = document.createElement(content.type);
+        const props = content.props || {};
+
+        Object.entries(props).forEach(([key, value]: [string, any]) => {
+          if (key === 'children') {
+            this.renderContent(value, el);
+          } else if (key === 'className' || key === 'class') {
+            el.className = value;
+          } else if (key === 'style' && typeof value === 'object') {
+            Object.assign(el.style, value);
+          } else if (key.startsWith('on') && typeof value === 'function') {
+            const eventName = key.toLowerCase().substring(2);
+            el.addEventListener(eventName, value);
+          } else if (key !== 'key' && key !== 'ref') {
+            el.setAttribute(key, typeof value === 'string' ? value : JSON.stringify(value));
+          }
+        });
+        container.appendChild(el);
+        return;
+      }
+
+      if (typeof content.type === 'function') {
+        try {
+          const result = content.type(content.props || {});
+          this.renderContent(result, container);
+          return;
+        } catch (e) {
+          // Fallback to custom renderer for complex components (hooks/classes)
+        }
+      }
+    }
+
+    if (Toast.renderer) {
       Toast.renderer(content, container);
     }
   }
@@ -223,7 +272,7 @@ export class Toast {
         } else if (typeof this.state.icon === 'string') {
           iconWrapper.innerHTML = this.state.icon;
         } else if (this.state.icon && typeof this.state.icon === 'object') {
-          Toast.renderer(this.state.icon, iconWrapper);
+          this.renderContent(this.state.icon, iconWrapper);
         } else {
           iconWrapper.innerHTML = this.state.type === 'loading' 
             ? icons.loading 
@@ -263,7 +312,8 @@ export class Toast {
 
   private buildClasses() {
     const themeClass = this.state.darkMode ? 'ct-theme-dark' : 'ct-theme-light';
-    const classes = ['ct-toast', themeClass, `ct-${this.state.variant}`, `ct-color-${this.state.color}`, `ct-radius-${this.state.radius}`];
+    const modeClass = this.state.darkMode ? 'dark' : 'light';
+    const classes = ['ct-toast', themeClass, modeClass, `ct-${this.state.variant}`, `ct-color-${this.state.color}`, `ct-radius-${this.state.radius}`];
     return classes.join(' ');
   }
 
