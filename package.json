@@ -1,6 +1,6 @@
 {
   "name": "crisp-toast",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A lightweight, beautiful, and highly customizable vanilla JS toast notification library.",
   "type": "module",
   "main": "./dist/crisp-toast.umd.cjs",
