@@ -18,6 +18,7 @@ export interface ToastOptions {
   id?: string;
   darkMode?: boolean;
   customStyle?: Partial<CSSStyleDeclaration>;
+  maxVisibleToasts?: number;
   action?: {
     label: string | any;
     onClick: () => void;

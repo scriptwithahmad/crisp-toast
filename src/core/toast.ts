@@ -19,6 +19,9 @@ export class Toast {
   public static renderer: ((node: any, container: HTMLElement) => void) | null = null;
 
   constructor(options: ToastOptions, type: ToastState['type'] = 'normal') {
+    if (options.maxVisibleToasts !== undefined) {
+      ToastManager.maxVisibleToasts = options.maxVisibleToasts;
+    }
     this.state = {
       ...options,
       type,
@@ -59,17 +62,27 @@ export class Toast {
     if (this.state.icon !== false) {
       const iconWrapper = document.createElement('div');
       iconWrapper.className = 'ct-icon';
+      let isDefault = false;
       if (this.state.icon instanceof HTMLElement) {
         iconWrapper.appendChild(this.state.icon);
       } else if (typeof this.state.icon === 'string') {
         iconWrapper.innerHTML = this.state.icon;
       } else if (this.state.icon && typeof this.state.icon === 'object') {
         this.renderContent(this.state.icon, iconWrapper);
+      } else if (typeof this.state.icon === 'function') {
+        this.renderContent(this.state.icon, iconWrapper);
       } else if (this.state.type === 'loading') {
         iconWrapper.innerHTML = icons.loading;
+        isDefault = true;
       } else {
         iconWrapper.innerHTML = icons[this.state.color as keyof typeof icons] || icons.default;
+        isDefault = true;
       }
+
+      if (!isDefault) {
+        iconWrapper.classList.add('ct-icon-custom');
+      }
+
       bodyWrapper.appendChild(iconWrapper);
     }
 
@@ -147,7 +160,7 @@ export class Toast {
     }
   }
 
-  private renderContent(content: any, container: HTMLElement) {
+  private renderContent(content: any, container: HTMLElement | SVGElement) {
     if (!content) return;
 
     if (typeof content === 'function') {
@@ -178,21 +191,34 @@ export class Toast {
     // Handle Virtual DOM / React Elements (JSX)
     if (content.type) {
       if (typeof content.type === 'string') {
-        const el = document.createElement(content.type);
+        const isSvg = content.type === 'svg' || container instanceof SVGElement || container.namespaceURI === 'http://www.w3.org/2000/svg';
+        const el = isSvg 
+            ? document.createElementNS('http://www.w3.org/2000/svg', content.type) 
+            : document.createElement(content.type);
         const props = content.props || {};
 
         Object.entries(props).forEach(([key, value]: [string, any]) => {
           if (key === 'children') {
-            this.renderContent(value, el);
+            this.renderContent(value, el as HTMLElement);
           } else if (key === 'className' || key === 'class') {
-            el.className = value;
+            if (isSvg) {
+              el.setAttribute('class', value);
+            } else {
+              (el as HTMLElement).className = value;
+            }
           } else if (key === 'style' && typeof value === 'object') {
-            Object.assign(el.style, value);
+            Object.assign((el as HTMLElement).style, value);
           } else if (key.startsWith('on') && typeof value === 'function') {
             const eventName = key.toLowerCase().substring(2);
             el.addEventListener(eventName, value);
           } else if (key !== 'key' && key !== 'ref') {
-            el.setAttribute(key, typeof value === 'string' ? value : JSON.stringify(value));
+            let attrName = key;
+            if (isSvg && attrName !== 'viewBox') {
+              attrName = attrName.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
+            }
+            if (value !== undefined && value !== null) {
+              el.setAttribute(attrName, typeof value === 'string' ? value : String(value));
+            }
           }
         });
         container.appendChild(el);
@@ -207,11 +233,20 @@ export class Toast {
         } catch (e) {
           // Fallback to custom renderer for complex components (hooks/classes)
         }
+      } else if (typeof content.type === 'object' && typeof content.type.render === 'function') {
+        try {
+          // React.forwardRef support
+          const result = content.type.render(content.props || {}, content.ref);
+          this.renderContent(result, container);
+          return;
+        } catch (e) {
+          // Fallback
+        }
       }
     }
 
     if (Toast.renderer) {
-      Toast.renderer(content, container);
+      Toast.renderer(content, container as HTMLElement);
     }
   }
 
@@ -267,16 +302,26 @@ export class Toast {
     if (iconWrapper) {
       if (this.state.icon !== false) {
         iconWrapper.innerHTML = '';
+        let isDefault = false;
         if (this.state.icon instanceof HTMLElement) {
           iconWrapper.appendChild(this.state.icon);
         } else if (typeof this.state.icon === 'string') {
           iconWrapper.innerHTML = this.state.icon;
         } else if (this.state.icon && typeof this.state.icon === 'object') {
           this.renderContent(this.state.icon, iconWrapper);
+        } else if (typeof this.state.icon === 'function') {
+          this.renderContent(this.state.icon, iconWrapper);
         } else {
           iconWrapper.innerHTML = this.state.type === 'loading' 
             ? icons.loading 
             : (icons[this.state.color as keyof typeof icons] || icons.default);
+          isDefault = true;
+        }
+
+        if (!isDefault) {
+          iconWrapper.classList.add('ct-icon-custom');
+        } else {
+          iconWrapper.classList.remove('ct-icon-custom');
         }
       } else {
         iconWrapper.innerHTML = '';

@@ -201,9 +201,10 @@ The main function. You can pass a string for a simple message or an options obje
 | `progressBar`| `boolean` | `false` | Whether to show the progress bar. |
 | `darkMode` | `boolean` | `true` | Whether the toast should use dark theme. |
 | `radius` | `'none' \| 'sm' \| 'md' \| 'lg' \| 'full'` | `'md'` | Corner rounding. |
-| `icon` | `string \| HTMLElement \| boolean` | `true` | Pass HTML string, element, or `false` to hide. |
-| `endContent` | `HTMLElement \| function` | `undefined` | Custom content at the end of the toast. |
-| `action` | `{ label: string, onClick: function }`| `undefined` | Add a call-to-action button. |
+| `icon` | `React.ReactNode \| string \| HTMLElement \| boolean` | `true` | Pass React component (like Lucide), HTML string, element, or `false` to hide. |
+| `maxVisibleToasts` | `number` | `5` | Maximum number of visible overlapping toasts on screen. |
+| `endContent` | `React.ReactNode \| HTMLElement \| function` | `undefined` | Custom content at the end of the toast. |
+| `action` | `{ label: React.ReactNode \| string, onClick: function }`| `undefined` | Add a call-to-action button. |
 | `onClose` | `function` | `undefined` | Callback when toast is dismissed. |
 | `customStyle`| `CSSStyleDeclaration` | `{}` | Custom CSS overrides. |
 | `pauseOnHover`| `boolean` | `false` | Pause the timer when cursor enters toast. |

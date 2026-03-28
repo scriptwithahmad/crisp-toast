@@ -205,7 +205,7 @@
   font-size: 0.875rem;
   line-height: 1.25rem;
   will-change: transform, opacity;
-  animation: ct-enter var(--ct-duration) var(--ct-easing) forwards;
+  animation: ct-enter var(--ct-duration) var(--ct-easing);
   transition: 
     transform 400ms var(--ct-easing), 
     opacity 400ms var(--ct-easing),
@@ -379,6 +379,23 @@
   height: 0.875rem;
 }
 
+/* Reset default styles when user provides a custom icon */
+.ct-icon.ct-icon-custom {
+  background: transparent !important;
+  border: none !important;
+  width: auto !important;
+  height: auto !important;
+  border-radius: 0 !important;
+  color: inherit !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+.ct-icon.ct-icon-custom svg {
+  width: auto !important;
+  height: auto !important;
+}
+
 /* Icon Colors inheritance */
 .ct-color-default .ct-icon { background: var(--ct-icon-default); }
 .ct-color-primary .ct-icon { background: var(--ct-icon-primary); }
@@ -506,13 +523,13 @@
 
 /* Animations */
 @keyframes ct-enter {
-  0% { transform: scale(0.9) translateY(20px); opacity: 0; }
-  100% { transform: scale(var(--ct-scale, 1)) translateY(var(--ct-y, 0)); opacity: 1; }
+  0% { transform: translateY(20px) scale(0.9); opacity: 0; }
+  100% { transform: translateY(var(--ct-y, 0)) scale(var(--ct-scale, 1)); opacity: 1; }
 }
 
 @keyframes ct-leave {
-  0% { transform: scale(var(--ct-scale, 1)) translateY(var(--ct-y, 0)); opacity: 1; }
-  100% { transform: scale(0.9) translateY(20px); opacity: 0; }
+  0% { transform: translateY(var(--ct-y, 0)) scale(var(--ct-scale, 1)); opacity: 1; }
+  100% { transform: translateY(20px) scale(0.9); opacity: 0; }
 }
 
 @keyframes ct-progress {
