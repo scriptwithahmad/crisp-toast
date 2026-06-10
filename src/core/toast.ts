@@ -57,7 +57,10 @@ export class Toast {
     }
 
     const bodyWrapper = document.createElement('div');
-    bodyWrapper.className = 'ct-body';
+    const hasTitle = !!this.state.title;
+    const hasDescription = !!this.state.description;
+    const isSingleLine = (hasTitle && !hasDescription) || (!hasTitle && hasDescription) || (!hasTitle && !hasDescription);
+    bodyWrapper.className = `ct-body${isSingleLine ? ' ct-body-centered' : ''}`;
 
     if (this.state.icon !== false) {
       const iconWrapper = document.createElement('div');
@@ -298,6 +301,14 @@ export class Toast {
     this.state = { ...this.state, ...options };
     this.element.className = this.buildClasses();
     
+    const bodyWrapper = this.element.querySelector('.ct-body') as HTMLElement;
+    if (bodyWrapper) {
+      const hasTitle = !!this.state.title;
+      const hasDescription = !!this.state.description;
+      const isSingleLine = (hasTitle && !hasDescription) || (!hasTitle && hasDescription) || (!hasTitle && !hasDescription);
+      bodyWrapper.className = `ct-body${isSingleLine ? ' ct-body-centered' : ''}`;
+    }
+    
     const iconWrapper = this.element.querySelector('.ct-icon') as HTMLElement;
     if (iconWrapper) {
       if (this.state.icon !== false) {
@@ -358,8 +369,16 @@ export class Toast {
   private buildClasses() {
     const themeClass = this.state.darkMode ? 'ct-theme-dark' : 'ct-theme-light';
     const modeClass = this.state.darkMode ? 'dark' : 'light';
-    const classes = ['ct-toast', themeClass, modeClass, `ct-${this.state.variant}`, `ct-color-${this.state.color}`, `ct-radius-${this.state.radius}`];
-    return classes.join(' ');
+    const classes = [
+      'ct-toast', 
+      themeClass, 
+      modeClass, 
+      `ct-${this.state.variant}`, 
+      `ct-color-${this.state.color}`, 
+      `ct-radius-${this.state.radius}`,
+      this.state.className || ''
+    ];
+    return classes.filter(Boolean).join(' ');
   }
 
   public dismiss() {

@@ -15,6 +15,7 @@ export interface ToastOptions {
   radius?: 'none' | 'sm' | 'md' | 'lg' | 'full';
   icon?: string | HTMLElement | boolean | any; // false to hide
   endContent?: string | HTMLElement | ((container: HTMLElement) => void) | any;
+  className?: string;
   id?: string;
   darkMode?: boolean;
   customStyle?: Partial<CSSStyleDeclaration>;
